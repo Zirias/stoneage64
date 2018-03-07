@@ -18,7 +18,7 @@ stoneage64_LABLES:=stoneage64.lbl
 stoneage64_MAP:=stoneage64.map
 
 sa64ld_LDCFG:=src/sa64ld.cfg
-sa64ld_OBJS:=$(addprefix obj/,load.o exodecrunch.o)
+sa64ld_OBJS:=$(addprefix obj/,load.o loaddat.o exodecrunch.o)
 sa64ld_BIN:=stoneage64.prg
 
 all: $(sa64ld_BIN)
@@ -39,7 +39,7 @@ $(sa64ld_BIN): $(sa64ld_OBJS)
 obj:
 	mkdir obj
 
-obj/load.o: $(stoneage64_EXOS)
+obj/loaddat.o: $(stoneage64_EXOS)
 
 obj/%.o: src/%.s src/stoneage64.cfg Makefile | obj
 	$(C64AS) $(C64ASFLAGS) -o$@ $<

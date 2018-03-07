@@ -1,5 +1,7 @@
 .include "board.inc"
 .include "sp_willy.inc"
+.include "vic.inc"
+.include "cia.inc"
 
 .zeropage
 willy_blink:	.res	1
@@ -7,23 +9,23 @@ willy_blwait:	.res	1
 
 .code
 		lda	#$fc
-		sta	$dd00
+		sta	CIA2_PRA
 		lda	#$e5
-		sta	$d018
+		sta	VIC_MEMCTL
 		lda	#$d3
-		sta	$d016
+		sta	VIC_CTL2
 		lda	#$13
-		sta	$d011
+		sta	VIC_CTL1
 		lda	#$ff
-		sta	$d012
+		sta	VIC_RASTER
 		lda	#$9
-		sta	$d021
+		sta	BG_COLOR_0
 		lda	#$b
-		sta	$d020
+		sta	BORDER_COLOR
 		lda	#$0
-		sta	$d022
+		sta	BG_COLOR_1
 		lda	#$c
-		sta	$d023
+		sta	BG_COLOR_2
 		ldx	#<(willy0_3 >> 6)
 		stx	$fbf8
 		dex
@@ -33,33 +35,33 @@ willy_blwait:	.res	1
 		dex
 		stx	$fbfb
 		lda	#$0
-		sta	$d010
+		sta	SPRITE_X_HB
 		lda	#$3b
-		sta	$d000
-		sta	$d002
-		sta	$d004
-		sta	$d006
+		sta	SPRITE_0_X
+		sta	SPRITE_1_X
+		sta	SPRITE_2_X
+		sta	SPRITE_3_X
 		lda	#$da
-		sta	$d001
-		sta	$d003
-		sta	$d005
-		sta	$d007
+		sta	SPRITE_0_Y
+		sta	SPRITE_1_Y
+		sta	SPRITE_2_Y
+		sta	SPRITE_3_Y
 		lda	#$2
-		sta	$d025
+		sta	SPRITE_MCOL_1
 		lda	#$6
-		sta	$d026
+		sta	SPRITE_MCOL_2
 		lda	#$e
-		sta	$d027
+		sta	SPRITE_0_COL
 		lda	#$5
-		sta	$d028
+		sta	SPRITE_1_COL
 		lda	#$1
-		sta	$d029
+		sta	SPRITE_2_COL
 		lda	#$3
-		sta	$d02a
+		sta	SPRITE_3_COL
 		lda	#$f
-		sta	$d015
+		sta	SPRITE_SHOW
 		lda	#$8
-		sta	$d01c
+		sta	SPRITE_MULTI
 		lda	#<isr
 		sta	$fffe
 		lda	#>isr
@@ -72,15 +74,15 @@ willy_blwait:	.res	1
 		sta	willy_blwait
 		lda	#$0
 		sta	willy_blink
-		dec	$d019
+		dec	VIC_IRR
 		lda	#$1
-		sta	$d01a
+		sta	VIC_IRM
 
 		bne	*
 
 isr:
 		sta	a_save
-		dec	$d019
+		dec	VIC_IRR
 		lda	willy_blink
 		beq	waitnext
 		dec	willy_blink
@@ -89,7 +91,7 @@ isr:
 		sta	willy_blwait
 		lda	#<(willy0_0 >> 6)
 		sta	$fbfb
-		inc	$d015
+		inc	SPRITE_SHOW
 		bne	isrout
 waitnext:	dec	willy_blwait
 		bpl	isrout
@@ -97,7 +99,7 @@ waitnext:	dec	willy_blwait
 		sta	willy_blink
 		lda	#<(willy1_0 >> 6)
 		sta	$fbfb
-		dec	$d015
+		dec	SPRITE_SHOW
 a_save		= *+1
 isrout:		lda	#$ff
 		rti

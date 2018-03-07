@@ -1,5 +1,5 @@
-.import decrunch
-.export get_crunched_byte
+.include "exodecrunch.inc"
+.include "cia.inc"
 
 .segment "BHDR"
 		.word	$0801
@@ -11,8 +11,8 @@ sysaddr:
 
 .segment "LDCODE"
 		lda	#$7f
-		sta	$dc0d
-		lda	$dc0d
+		sta	CIA1_ICR
+		lda	CIA1_ICR
 		lda	#$30
 		sta	$01
 		jsr	decrunch
@@ -21,20 +21,4 @@ sysaddr:
 		jsr	decrunch
 		jsr	decrunch
 		jmp	$8000
-
-get_crunched_byte:
-		lda	_byte_lo
-		bne	_byte_skip_hi
-		dec	_byte_hi
-_byte_skip_hi:
-		dec	_byte_lo
-_byte_lo = * + 1
-_byte_hi = * + 2
-		lda	end_of_data
-		rts
-
-.incbin "main_stoneage64.exo"
-.incbin "spr_stoneage64.exo"
-.incbin "cs_stoneage64.exo"
-end_of_data:	.res	0
 
