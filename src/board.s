@@ -1,5 +1,6 @@
 .include "tiles.inc"
 .include "levels.inc"
+.include "sp_minmap.inc"
 
 .export startlevel
 
@@ -12,6 +13,8 @@ tilepos:	.res	1
 tmp:		.res	1
 lvlrowptrl:	.res	2
 lvlrowptrh:	.res	2
+mmrowbg:	.res	9
+mmrowfg:	.res	4
 
 .data
 
@@ -42,7 +45,89 @@ startlevel:
 		lda	lvlrowptrs+3,x
 		sta	lvlrowptrh+1
 
-		lda	#$27
+		lda	#$3b
+		sta	screenrow
+		ldy	#$13
+mminitloop:	lda	(lvlrowptrl),y
+		sta	mapfetchptr
+		lda	(lvlrowptrh),y
+		sta	mapfetchptr+1
+		lda	#$0
+		ldx	#$c
+mmrowclr:	sta	mmrowbg,x
+		dex
+		bpl	mmrowclr
+		ldx	#$1f
+mapfetchptr	= *+1
+mmrowloop:	lda	$ffff,x
+		cmp	#$4
+		ror	mmrowfg
+		ror	mmrowfg+1
+		ror	mmrowfg+2
+		ror	mmrowfg+3
+		ror	mmrowfg+4
+		lsr	a
+		ror	mmrowbg
+		ror	mmrowbg+1
+		ror	mmrowbg+2
+		ror	mmrowbg+3
+		ror	mmrowbg+4
+		ror	mmrowbg+5
+		ror	mmrowbg+6
+		ror	mmrowbg+7
+		ror	mmrowbg+8
+		lsr	a
+		ror	mmrowbg
+		ror	mmrowbg+1
+		ror	mmrowbg+2
+		ror	mmrowbg+3
+		ror	mmrowbg+4
+		ror	mmrowbg+5
+		ror	mmrowbg+6
+		ror	mmrowbg+7
+		ror	mmrowbg+8
+mmrownext:	dex
+		bne	mmrowloop
+		ldx	screenrow
+		lda	mmrowbg+2
+		sta	mmbgleft,x
+		lda	mmrowbg+5
+		sta	mmbgmid,x
+		lda	mmrowbg+8
+		sta	mmbgright,x
+		lda	mmrowfg+2
+		sta	mmfgleft,x
+		lda	#$0
+		sta	mmfgright,x
+		dex
+		lda	mmrowbg+1
+		sta	mmbgleft,x
+		lda	mmrowbg+4
+		sta	mmbgmid,x
+		lda	mmrowbg+7
+		sta	mmbgright,x
+		lda	mmrowfg+1
+		sta	mmfgleft,x
+		lda	#$0
+		sta	mmfgright,x
+		dex
+		lda	mmrowbg
+		sta	mmbgleft,x
+		lda	mmrowbg+3
+		sta	mmbgmid,x
+		lda	mmrowbg+6
+		sta	mmbgright,x
+		lda	mmrowfg
+		sta	mmfgleft,x
+		lda	mmrowfg+3
+		sta	mmfgright,x
+		dex
+		stx	screenrow
+		dey
+		bmi	scinit
+		jmp	mminitloop
+
+scinit:		lda	#$27
 		sta	maprow
 		lda	#$18
 		sta	screenrow

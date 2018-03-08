@@ -9,7 +9,7 @@ C64LDFLAGS?=-Ln stoneage64.lbl -m stoneage64.map -Csrc/stoneage64.cfg
 
 stoneage64_LDCFG:=src/stoneage64.cfg
 stoneage64_OBJS:=$(addprefix obj/,ldaddr.o main.o board.o levels.o \
-	tiles.o sp_willy.o sp_rock.o)
+	tiles.o spritezone.o sp_willy.o sp_rock.o sp_minmap.o)
 stoneage64_TARGET:=stoneage64.bin
 stoneage64_PARTS:=main cs spr
 stoneage64_BINS:=$(addsuffix _$(stoneage64_TARGET),$(stoneage64_PARTS))
@@ -25,6 +25,26 @@ all: $(sa64ld_BIN)
 
 run: all
 	$(VICE) -autostart $(sa64ld_BIN) -moncommands $(stoneage64_LABLES)
+
+oldsid: all
+	$(VICE) -autostart $(sa64ld_BIN) -moncommands $(stoneage64_LABLES) \
+		-sidenginemodel 256
+
+pixels: all
+	$(VICE) -autostart $(sa64ld_BIN) -moncommands $(stoneage64_LABLES) \
+		-VICIIfilter 0 +trueaspect
+
+ntsc: all
+	$(VICE) -autostart $(sa64ld_BIN) -moncommands $(stoneage64_LABLES) \
+		-VICIIfilter 0 +trueaspect -ntsc
+
+ntscold: all
+	$(VICE) -autostart $(sa64ld_BIN) -moncommands $(stoneage64_LABLES) \
+		-VICIIfilter 0 +trueaspect -ntscold
+
+paln: all
+	$(VICE) -autostart $(sa64ld_BIN) -moncommands $(stoneage64_LABLES) \
+		-VICIIfilter 0 +trueaspect -paln
 
 $(stoneage64_BINS) $(stoneage64_LABLES): $(stoneage64_OBJS)
 	$(C64LD) -o $(stoneage64_TARGET) -C $(stoneage64_LDCFG) \
@@ -50,5 +70,5 @@ clean:
 distclean: clean
 	rm -f $(sa64ld_BIN)
 
-.PHONY: all run clean distclean
+.PHONY: all run oldsid pixels ntsc ntscold paln clean distclean
 
