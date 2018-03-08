@@ -42,24 +42,17 @@ cs1clear:	sta	$ff00,x
 		dey
 		bne	cs1clear
 		inc	$1
+		ldy	#$f8
+		sty	scrpage
+		ldy	#$4
+scrpage		= *+2
+scrclear:	sta	$ff00,x
+		inx
+		bne	scrclear
+		inc	scrpage
+		dey
+		bne	scrclear
 
-		lda	#$fc
-		sta	CIA2_PRA
-		lda	#$e5
-		sta	VIC_MEMCTL
-		lda	#$d3
-		sta	VIC_CTL2
-		lda	#$1b
-		sta	VIC_CTL1
-		lda	#$ff
-		sta	VIC_RASTER
-		lda	#$9
-		sta	BG_COLOR_0
-		lda	#$0
-		sta	BORDER_COLOR
-		sta	BG_COLOR_1
-		lda	#$c
-		sta	BG_COLOR_2
 		ldx	#<(willy0_3 >> 6)
 		stx	z1_sp_0_ptr
 		dex
@@ -110,19 +103,19 @@ cs1clear:	sta	$ff00,x
 		stx	z2_sp_6_ptr
 		inx
 		stx	z2_sp_7_ptr
-		lda	#$e
+		lda	#$f
 		sta	z2_sp_0_x
-		lda	#$10
+		lda	#$11
 		sta	z2_sp_5_x
 		sta	z2_sp_2_x
-		lda	#$28
+		lda	#$29
 		sta	z2_sp_4_x
-		lda	#$40
+		lda	#$41
 		sta	z2_sp_3_x
 		sta	z2_sp_1_x
-		lda	#$d8
+		lda	#$da
 		sta	z2_sp_6_x
-		lda	#$f0
+		lda	#$f2
 		sta	z2_sp_7_x
 		lda	#$3f
 		sta	z2_sp_x_hb
@@ -161,6 +154,9 @@ cs1clear:	sta	$ff00,x
 		lda	#$e
 		sta	z2_sp_6_col
 		sta	z2_sp_7_col
+		lda	#$60
+		sta	willy_blwait
+
 		lda	#$0
 		sta	mmbgleft+$3c
 		sta	mmbgleft+$3d
@@ -177,24 +173,41 @@ cs1clear:	sta	$ff00,x
 		sta	mmfgright+$3c
 		sta	mmfgright+$3d
 		sta	mmfgright+$3e
+
 		lda	#<isr0
 		sta	$fffe
 		lda	#>isr0
 		sta	$ffff
 
+		lda	#$9
+		sta	BG_COLOR_0
 		lda	#$0
-		jsr	startlevel
-
-		lda	#$60
-		sta	willy_blwait
+		sta	BORDER_COLOR
+		sta	BG_COLOR_1
+		lda	#$c
+		sta	BG_COLOR_2
+		lda	#$fc
+		sta	CIA2_PRA
+		lda	#$e5
+		sta	VIC_MEMCTL
+		lda	#$1b
+		sta	VIC_CTL1
+		lda	#$d3
+		sta	VIC_CTL2
 		dec	VIC_IRR
+		lda	#$ff
+		sta	VIC_RASTER
 		lda	#$1
 		sta	VIC_IRM
 
-		bne	*
+		lda	#$0
+		jsr	startlevel
+
+		jmp	*
 
 isr0:
 		sta	a_save_0
+		stx	x_save_0
 		lda	VIC_CTL1
 		ora	#$8
 		sta	VIC_CTL1
@@ -245,6 +258,8 @@ waitnext:	dec	willy_blwait
 		dec	z1_sp_show
 a_save_0	= *+1
 isrout:		lda	#$ff
+x_save_0	= *+1
+		ldx	#$ff
 		rti
 
 isr1:
@@ -270,6 +285,7 @@ isr2:
 		lda	#>isr4
 		sta	$ffff
 		dec	VIC_IRR
+		nop
 		nop
 		nop
 		nop
