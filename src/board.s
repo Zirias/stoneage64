@@ -45,9 +45,9 @@ startlevel:
 		lda	lvlrowptrs+3,x
 		sta	lvlrowptrh+1
 
-		lda	#$3b
+		lda	#$35
 		sta	screenrow
-		ldy	#$13
+		ldy	#$12
 mminitloop:	lda	(lvlrowptrl),y
 		sta	mapfetchptr
 		lda	(lvlrowptrh),y
@@ -124,12 +124,12 @@ mmrownext:	dex
 		dex
 		stx	screenrow
 		dey
-		bmi	scinit
+		beq	scinit
 		jmp	mminitloop
 
 scinit:		lda	#$27
 		sta	maprow
-		lda	#$18
+		lda	#$17
 		sta	screenrow
 scinitloop:	lda	maprow
 		lsr	a

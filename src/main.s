@@ -25,7 +25,26 @@ framevis:	.byte	$0,$0,$0,$0,$1,$1,$1,$1,$1,$1,$1,$1,$1,$1,$1,$1
 framecyclen	= *-framevis
 
 .code
-		ldx	#$fe
+countlines1:	lda	$d012
+countlines2:	cmp	$d012
+		beq	countlines2
+		bmi	countlines1
+		and	#$3
+		tay
+		cpy	#$3
+		bne	vsysdetected
+		ldx	#$0
+countcycles:	inx
+		lda	$d012
+		bpl	countcycles
+		cpx	#$5e
+		bcc	vsysdetected
+		iny
+vsysdetected:	cpy	#$3
+		bcs	init
+		lda	#$a
+		sta	firstraster
+init:		ldx	#$fe
 		lda	#$0
 zpclr:		sta	$1,x
 		dex
@@ -66,7 +85,7 @@ scrclear:	sta	$ff00,x
 		sta	z1_sp_1_x
 		sta	z1_sp_2_x
 		sta	z1_sp_3_x
-		lda	#$da
+		lda	#$d2
 		sta	z1_sp_0_y
 		sta	z1_sp_1_y
 		sta	z1_sp_2_y
@@ -113,22 +132,22 @@ scrclear:	sta	$ff00,x
 		lda	#$41
 		sta	z2_sp_3_x
 		sta	z2_sp_1_x
-		lda	#$da
+		lda	#$d2
 		sta	z2_sp_6_x
-		lda	#$f2
+		lda	#$ea
 		sta	z2_sp_7_x
 		lda	#$3f
 		sta	z2_sp_x_hb
-		lda	#$f2
+		lda	#$ea
 		sta	z2_sp_1_y
 		sta	z2_sp_2_y
 		sta	z2_sp_3_y
 		sta	z2_sp_4_y
 		sta	z2_sp_5_y
-		lda	#$fc
+		lda	#$f4
 		sta	z2_sp_6_y
 		sta	z2_sp_7_y
-		lda	#$0
+		lda	#$f6
 		sta	z2_sp_0_y
 		lda	#$f8
 		sta	z2_sp_multi
@@ -158,21 +177,14 @@ scrclear:	sta	$ff00,x
 		sta	willy_blwait
 
 		lda	#$0
-		sta	mmbgleft+$3c
-		sta	mmbgleft+$3d
-		sta	mmbgleft+$3e
-		sta	mmbgmid+$3c
-		sta	mmbgmid+$3d
-		sta	mmbgmid+$3e
-		sta	mmbgright+$3c
-		sta	mmbgright+$3d
-		sta	mmbgright+$3e
-		sta	mmfgleft+$3c
-		sta	mmfgleft+$3d
-		sta	mmfgleft+$3e
-		sta	mmfgright+$3c
-		sta	mmfgright+$3d
-		sta	mmfgright+$3e
+		ldx	#$8
+sprclrloop:	sta	mmbgleft+$36,x
+		sta	mmbgmid+$36,x
+		sta	mmbgright+$36,x
+		sta	mmfgleft+$36,x
+		sta	mmfgright+$36,x
+		dex
+		bpl	sprclrloop
 
 		lda	#<isr0
 		sta	$fffe
@@ -211,7 +223,8 @@ isr0:
 		lda	VIC_CTL1
 		ora	#$8
 		sta	VIC_CTL1
-		lda	#$4
+firstraster	= *+1
+		lda	#$0
 		sta	VIC_RASTER
 		lda	#<isr1
 		sta	$fffe
@@ -232,7 +245,7 @@ fcpok:		ldx	framecycpos
 		sta	z2_sp_show
 		dec	cabbagewait
 		bpl	dowillyblink
-		lda	#$18
+		lda	#$16
 		sta	cabbagewait
 		lda	#$8
 		eor	z2_sp_3_col
@@ -278,7 +291,7 @@ a_save_1	= *+1
 
 isr2:
 		sta	a_save_2
-		lda	#$ec
+		lda	#$e4
 		sta	VIC_RASTER
 		lda	#<isr4
 		sta	$fffe
@@ -302,7 +315,7 @@ a_save_2	= *+1
 
 isr4:
 		sta	a_save_4
-		lda	#$f2
+		lda	#$ea
 		sta	VIC_RASTER
 		lda	#<isr5
 		sta	$fffe
