@@ -7,3 +7,6 @@
 .segment "LADRSP"
 .word $e000
 
+.segment "LADRLVL"
+.word $2000
+

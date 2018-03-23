@@ -13,6 +13,7 @@ _byte_hi = * + 2
 		lda	end_of_data
 		rts
 
+.incbin "lvl_stoneage64.exo"
 .incbin "main_stoneage64.exo"
 .incbin "spr_stoneage64.exo"
 .incbin "cs_stoneage64.exo"

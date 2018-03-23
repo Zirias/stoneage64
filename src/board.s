@@ -1,22 +1,56 @@
 .include "tiles.inc"
 .include "levels.inc"
 .include "sp_minmap.inc"
+.include "int16.inc"
 
-.export startlevel
+.export board_init
+.export board_setlevel
 
 .zeropage
+
+lvlptr:		.res	2
+tmpptr:		.res	2
 
 maprow:		.res	1
 mapcol:		.res	1
 screenrow:	.res	1
 tilepos:	.res	1
 tmp:		.res	1
-lvlrowptrl:	.res	2
-lvlrowptrh:	.res	2
 mmrowbg:	.res	9
 mmrowfg:	.res	4
 
+.bss
+
+board:		.res	$21 * $14
+br1 = board + $21
+br2 = br1 + $21
+br3 = br2 + $21
+br4 = br3 + $21
+br5 = br4 + $21
+br6 = br5 + $21
+br7 = br6 + $21
+br8 = br7 + $21
+br9 = br8 + $21
+br10 = br9 + $21
+br11 = br10 + $21
+br12 = br11 + $21
+br13 = br12 + $21
+br14 = br13 + $21
+br15 = br14 + $21
+br16 = br15 + $21
+br17 = br16 + $21
+br18 = br17 + $21
+br19 = br18 + $21
+
 .data
+
+boardrowptrl:
+.byte <board,<br1,<br2,<br3,<br4,<br5,<br6,<br7,<br8,<br9
+.byte <br10,<br11,<br12,<br13,<br14,<br15,<br16,<br17,<br18,<br19
+
+boardrowptrh:
+.byte >board,>br1,>br2,>br3,>br4,>br5,>br6,>br7,>br8,>br9
+.byte >br10,>br11,>br12,>br13,>br14,>br15,>br16,>br17,>br18,>br19
 
 scrrowptrl:
 .byte $00,$28,$50,$78,$a0,$c8,$f0,$18,$40,$68,$90,$b8,$e0,$08,$30,$58
@@ -32,25 +66,95 @@ colrowptrh:
 
 .code
 
-startlevel:
-		asl	a
-		asl	a
+.proc board_init
+		lda	#$0
 		tax
-		lda	lvlrowptrs,x
-		sta	lvlrowptrl
-		lda	lvlrowptrs+1,x
-		sta	lvlrowptrl+1
-		lda	lvlrowptrs+2,x
-		sta	lvlrowptrh
-		lda	lvlrowptrs+3,x
-		sta	lvlrowptrh+1
+clearloop:	sta	board,x
+		sta	board+$100,x
+		sta	board+$194,x
+		inx
+		bne	clearloop
+		lda	#$4
+		ldx	#$20
+wallloop:	sta	board,x
+		sta	br19,x
+		dex
+		bpl	wallloop
+		sta	br1
+		sta	br2-1
+		sta	br2
+		sta	br3-1
+		sta	br3
+		sta	br4-1
+		sta	br4
+		sta	br5-1
+		sta	br5
+		sta	br6-1
+		sta	br6
+		sta	br7-1
+		sta	br7
+		sta	br8-1
+		sta	br8
+		sta	br9-1
+		sta	br9
+		sta	br10-1
+		sta	br10
+		sta	br11-1
+		sta	br11
+		sta	br12-1
+		sta	br12
+		sta	br13-1
+		sta	br13
+		sta	br14-1
+		sta	br14
+		sta	br15-1
+		sta	br15
+		sta	br16-1
+		sta	br16
+		sta	br17-1
+		sta	br17
+		sta	br18-1
+		sta	br18
+		sta	br19-1
+		rts
+.endproc
+
+.proc board_setlevel
+		ldx	#$40
+		stx	tmpptr
+		ldx	#$2
+		stx	tmpptr+1
+		int16_multaq lvlptr, tmpptr
+		clc
+		lda	#<levels
+		adc	lvlptr
+		sta	lvlptr
+		lda	#>levels
+		adc	lvlptr+1
+		sta	lvlptr+1
+		lda	#<(br1+1)
+		sta	tmpptr
+		lda	#>(br1+1)
+		sta	tmpptr+1
+		ldx	#$12
+lvlloop:	ldy	#$1e
+lvlrowloop:	lda	(lvlptr),y
+		sta	(tmpptr),y
+		dey
+		bpl	lvlrowloop
+		lda	#$21
+		int16_adda tmpptr, tmpptr
+		lda	#$20
+		int16_adda lvlptr, lvlptr
+		dex
+		bne	lvlloop
 
 		lda	#$35
 		sta	screenrow
 		ldy	#$12
-mminitloop:	lda	(lvlrowptrl),y
+mminitloop:	lda	boardrowptrl,y
 		sta	mapfetchptr
-		lda	(lvlrowptrh),y
+		lda	boardrowptrh,y
 		sta	mapfetchptr+1
 		lda	#$0
 		ldx	#$c
@@ -135,9 +239,9 @@ scinitloop:	lda	maprow
 		lsr	a
 		ror	tmp
 		tay
-		lda	(lvlrowptrl),y
+		lda	boardrowptrl,y
 		sta	tilefetchptr
-		lda	(lvlrowptrh),y
+		lda	boardrowptrh,y
 		sta	tilefetchptr+1
 		ldx	screenrow
 		lda	scrrowptrl,x
@@ -190,4 +294,5 @@ colstoreptr2	= *+1
 		dec	screenrow
 		bpl	scinitloop
 		rts
+.endproc
 

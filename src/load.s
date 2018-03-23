@@ -20,5 +20,6 @@ sysaddr:
 		sta	$01
 		jsr	decrunch
 		jsr	decrunch
+		jsr	decrunch
 		jmp	$8000
 

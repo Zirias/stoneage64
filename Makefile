@@ -8,10 +8,10 @@ C64ASFLAGS?=-t $(C64SYS) -g
 C64LDFLAGS?=-Ln stoneage64.lbl -m stoneage64.map -Csrc/stoneage64.cfg
 
 stoneage64_LDCFG:=src/stoneage64.cfg
-stoneage64_OBJS:=$(addprefix obj/,ldaddr.o main.o board.o levels.o \
+stoneage64_OBJS:=$(addprefix obj/,ldaddr.o int16.o main.o board.o levels.o \
 	tiles.o spritezone.o sp_willy.o sp_rock.o sp_minmap.o)
 stoneage64_TARGET:=stoneage64.bin
-stoneage64_PARTS:=main cs spr
+stoneage64_PARTS:=main cs spr lvl
 stoneage64_BINS:=$(addsuffix _$(stoneage64_TARGET),$(stoneage64_PARTS))
 stoneage64_EXOS:=$(stoneage64_BINS:.bin=.exo)
 stoneage64_LABLES:=stoneage64.lbl

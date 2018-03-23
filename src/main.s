@@ -212,8 +212,9 @@ sprclrloop:	sta	mmbgleft+$36,x
 		lda	#$1
 		sta	VIC_IRM
 
+		jsr	board_init
 		lda	#$0
-		jsr	startlevel
+		jsr	board_setlevel
 
 		jmp	*
 

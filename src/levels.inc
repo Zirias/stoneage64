@@ -1,4 +1,2 @@
-.import lvlrowptrs
-
-NUMLEVELS = 1
+.import levels
 
